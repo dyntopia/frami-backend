@@ -1,0 +1,7 @@
+[run]
+branch = true
+source = frami
+omit = frami/__main__.py
+
+[report]
+fail_under = 100

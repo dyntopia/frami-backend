@@ -16,8 +16,8 @@ test:
 qa:
 	isort --check-only --diff --recursive .
 	pycodestyle .
-	pyflakes setup.py frami
-	pylint --output-format parseable setup.py frami tests
+	pyflakes manage.py setup.py frami
+	pylint --output-format parseable manage.py setup.py frami tests
 	yapf --diff --recursive .
 	safety check --bare --cache
 	ossaudit \

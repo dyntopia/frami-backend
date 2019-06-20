@@ -7,8 +7,8 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'frami.settings')
     try:
         from django.core.management import execute_from_command_line
-    except ImportError as exc:
-        raise ImportError('Cannot import Django') from exc
+    except ImportError:
+        raise ImportError('Cannot import Django')
     execute_from_command_line(sys.argv)
 
 

@@ -11,9 +11,9 @@ install-dev:
 test:
 	python3 -m pytest
 
-#coverage run -m pytest -v
-#coverage report -m
 qa:
+	coverage run -m pytest -v
+	coverage report -m
 	isort --check-only --diff --recursive .
 	pycodestyle .
 	pyflakes manage.py setup.py frami

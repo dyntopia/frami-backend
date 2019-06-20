@@ -1,7 +1,7 @@
 [run]
 branch = true
 source = frami
-omit = frami/__main__.py
+omit = frami/settings.py, frami/wsgi.py
 
 [report]
 fail_under = 100

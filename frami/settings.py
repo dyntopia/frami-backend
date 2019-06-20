@@ -11,6 +11,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'frami.api',
+    'frami.spa',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

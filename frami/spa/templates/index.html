@@ -10,6 +10,11 @@
   </head>
   <body>
     {% csrf_token %}
+
+    {% if user.is_authenticated %}
+      {{ user_serialized | json_script:"user" }}
+    {% endif %}
+
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="text/javascript" src="/spa/main.js"></script>

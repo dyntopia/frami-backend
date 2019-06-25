@@ -1,9 +1,19 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.http import JsonResponse
+from django.views.generic import TemplateView
 from rest_framework import status
 
 from ..api.serializers import UserSerializer
+
+
+class IndexView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            data = UserSerializer(self.request.user).data
+            context['user_serialized'] = data
+        return context
 
 
 class LoginView(BaseLoginView):

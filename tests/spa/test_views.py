@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth.models import User
-from pytest import mark
+from pytest import mark, raises
 from rest_framework import status
 
 
@@ -23,3 +23,19 @@ def test_login(client):
     assert data['id'] == user.id
     assert data['username'] == user.username
     assert res.status_code == status.HTTP_200_OK
+
+
+@mark.django_db
+def test_template(client):
+    User.objects.create_user(username='foo', password='bar')
+    User.objects.create_user(username='baz', password='qux')
+    User.objects.create_user(username='abc', password='xyz')
+
+    res = client.get('/spa/')
+    with raises(ValueError):
+        res.content.index(b'<script id="user" type="application/json">')
+
+    client.login(username='baz', password='qux')
+    res = client.get('/spa/')
+    assert res.content.index(b'<script id="user" type="application/json">')
+    assert res.content.index(b'"username": "baz"')

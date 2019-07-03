@@ -15,10 +15,10 @@ qa:
 	coverage run -m pytest -v
 	coverage report -m
 	isort --check-only --diff --recursive .
-	pycodestyle .
+	pycodestyle --exclude migrations .
 	pyflakes manage.py setup.py frami
 	pylint --output-format parseable manage.py setup.py frami tests
-	yapf --diff --recursive .
+	yapf --diff --recursive --exclude '*/migrations/*.py' .
 	safety check --bare --cache
 	ossaudit \
 		--file requirements/requirements.txt \

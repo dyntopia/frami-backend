@@ -1,7 +1,7 @@
 [MASTER]
 persistent=no
 
-ignore=.git
+ignore=.git,migrations
 
 load-plugins=
     pylint.extensions.bad_builtin,
@@ -35,6 +35,7 @@ disable=
     missing-type-doc,
     missing-yield-doc,
     missing-yield-type-doc,
+    no-member, # because of django
     suppressed-message,
     too-few-public-methods,
     too-many-ancestors,

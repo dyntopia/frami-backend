@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework.mixins import (
     CreateModelMixin,
+    DestroyModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
 )
@@ -16,6 +17,7 @@ class Permission(IsAdminOrSelf):
 
 class UserViewSet(
         CreateModelMixin,
+        DestroyModelMixin,
         ListModelMixin,
         RetrieveModelMixin,
         GenericViewSet,

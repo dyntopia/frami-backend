@@ -12,6 +12,28 @@ def test_unauthenticated(client):
 
 
 @mark.django_db
+def test_create(client):
+    User.objects.create_user(username='foo', password='bar')
+    User.objects.create_user(username='x', password='y', is_staff=True)
+
+    client.login(username='foo', password='bar')
+    res = client.post('/api/user/', {'username': 'abc'})
+    assert res.status_code == status.HTTP_403_FORBIDDEN
+
+    client.login(username='x', password='y')
+    res = client.post('/api/user/', {'username': 'abc'})
+    assert not res.data['is_staff']
+    assert res.data['username'] == 'abc'
+    assert res.status_code == status.HTTP_201_CREATED
+
+    client.login(username='x', password='y')
+    res = client.post('/api/user/', {'username': 'xyz', 'is_staff': True})
+    assert res.data['is_staff']
+    assert res.data['username'] == 'xyz'
+    assert res.status_code == status.HTTP_201_CREATED
+
+
+@mark.django_db
 def test_list(client):
     user = User.objects.create_user(username='foo', password='bar')
     staff = User.objects.create_user(username='x', password='y', is_staff=True)

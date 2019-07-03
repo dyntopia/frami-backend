@@ -13,8 +13,4 @@ class UserSerializer(ModelSerializer):
             'last_name',
             'is_staff',
         )
-        read_only_fields = (
-            'id',
-            'username',
-            'is_staff',
-        )
+        read_only_fields = ('id', )

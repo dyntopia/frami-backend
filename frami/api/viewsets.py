@@ -4,6 +4,7 @@ from rest_framework.mixins import (
     DestroyModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
+    UpdateModelMixin,
 )
 from rest_framework.viewsets import GenericViewSet
 
@@ -20,6 +21,7 @@ class UserViewSet(
         DestroyModelMixin,
         ListModelMixin,
         RetrieveModelMixin,
+        UpdateModelMixin,
         GenericViewSet,
 ):
     queryset = User.objects.all()

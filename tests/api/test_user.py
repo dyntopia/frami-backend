@@ -104,3 +104,36 @@ def test_retrieve_other(client):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['id'] == user.id
     assert res.data['username'] == user.username
+
+
+@mark.django_db
+def test_update(client):
+    user = User.objects.create_user(username='foo', password='bar')
+    other = User.objects.create_user(username='baz', password='qux')
+    staff = User.objects.create_user(username='x', password='y', is_staff=True)
+
+    user_url = '/api/user/{}/'.format(user.id)
+    other_url = '/api/user/{}/'.format(other.id)
+    staff_url = '/api/user/{}/'.format(staff.id)
+
+    # User update other.
+    client.login(username='foo', password='bar')
+    res = client.patch(other_url, {'first_name': 'abc'}, 'application/json')
+    assert res.status_code == status.HTTP_403_FORBIDDEN
+
+    # User update self.
+    client.login(username='foo', password='bar')
+    res = client.patch(user_url, {'first_name': 'abc'}, 'application/json')
+    assert res.status_code == status.HTTP_403_FORBIDDEN
+
+    # Staff update other.
+    client.login(username='x', password='y')
+    res = client.patch(other_url, {'first_name': 'abc'}, 'application/json')
+    assert res.status_code == status.HTTP_200_OK
+    assert res.data['first_name'] == 'abc'
+
+    # Staff update self.
+    client.login(username='x', password='y')
+    res = client.patch(staff_url, {'first_name': 'abc'}, 'application/json')
+    assert res.status_code == status.HTTP_200_OK
+    assert res.data['first_name'] == 'abc'

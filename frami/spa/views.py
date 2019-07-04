@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView as BaseLoginView
+from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
@@ -26,3 +27,7 @@ class LoginView(BaseLoginView):
     def form_invalid(self, form):
         data = {'message': 'invalid credentials'}
         return JsonResponse(data=data, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LogoutView(BaseLogoutView):
+    pass

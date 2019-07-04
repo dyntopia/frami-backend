@@ -26,6 +26,17 @@ def test_login(client):
 
 
 @mark.django_db
+def test_logout(client):
+    user = User.objects.create_user(username='foo', password='bar')
+
+    res = client.post('/spa/login/', {'username': 'foo', 'password': 'bar'})
+    assert res.status_code == status.HTTP_200_OK
+
+    res = client.post('/spa/logout/')
+    assert res.status_code == status.HTTP_200_OK
+
+
+@mark.django_db
 def test_template(client):
     User.objects.create_user(username='foo', password='bar')
     User.objects.create_user(username='baz', password='qux')

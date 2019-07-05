@@ -1,4 +1,6 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
 from .models import Prescription
@@ -28,5 +30,16 @@ class UserSerializer(ModelSerializer):
             'last_name',
             'is_staff',
             'prescriptions',
+            'password',
         )
         read_only_fields = ('id', )
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+            }
+        }
+
+    @staticmethod
+    def validate_password(value):
+        validate_password(value)
+        return make_password(value)

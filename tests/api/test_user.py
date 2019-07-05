@@ -16,21 +16,52 @@ def test_create(client):
     User.objects.create_user(username='foo', password='bar')
     User.objects.create_user(username='x', password='y', is_staff=True)
 
+    url = '/api/user/'
+
+    # Forbidden.
     client.login(username='foo', password='bar')
-    res = client.post('/api/user/', {'username': 'abc'})
+    res = client.post(url, {'username': 'abc', 'password': 'pwpwpw1234'})
     assert res.status_code == status.HTTP_403_FORBIDDEN
 
+    # New regular user.
     client.login(username='x', password='y')
-    res = client.post('/api/user/', {'username': 'abc'})
+    res = client.post(url, {'username': 'abc', 'password': 'pwpwpw1234'})
     assert not res.data['is_staff']
     assert res.data['username'] == 'abc'
     assert res.status_code == status.HTTP_201_CREATED
+    assert client.login(username='abc', password='pwpwpw1234')
 
+    # New staff.
     client.login(username='x', password='y')
-    res = client.post('/api/user/', {'username': 'xyz', 'is_staff': True})
+    res = client.post(
+        url, {
+            'username': 'xyz',
+            'password': 'pwpwpw1234',
+            'is_staff': True,
+        }
+    )
     assert res.data['is_staff']
     assert res.data['username'] == 'xyz'
     assert res.status_code == status.HTTP_201_CREATED
+    assert client.login(username='xyz', password='pwpwpw1234')
+
+    # Duplicate.
+    client.login(username='x', password='y')
+    res = client.post(url, {'username': 'abc', 'password': 'pwpwpw1234'})
+    assert 'unique' in [err.code for err in res.data['username']]
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Missing password.
+    client.login(username='x', password='y')
+    res = client.post(url, {'username': 'meh'})
+    assert 'required' in [err.code for err in res.data['password']]
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Invalid password.
+    client.login(username='x', password='y')
+    res = client.post(url, {'username': 'meh', 'password': 'x'})
+    assert 'password_too_short' in [err.code for err in res.data['password']]
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @mark.django_db
@@ -87,6 +118,7 @@ def test_retrieve(client):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['id'] == user.id
     assert res.data['username'] == user.username
+    assert not res.data.get('password')
 
 
 @mark.django_db
@@ -104,6 +136,7 @@ def test_retrieve_other(client):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['id'] == user.id
     assert res.data['username'] == user.username
+    assert not res.data.get('password')
 
 
 @mark.django_db
@@ -132,8 +165,38 @@ def test_update(client):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['first_name'] == 'abc'
 
+    # Staff update other with invalid password.
+    client.login(username='x', password='y')
+    res = client.patch(other_url, {'password': 'x'}, 'application/json')
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'password_too_short' in [err.code for err in res.data['password']]
+    assert client.login(username='baz', password='qux')
+    assert not client.login(username='baz', password='x')
+
+    # Staff update other with valid password.
+    client.login(username='x', password='y')
+    res = client.patch(other_url, {'password': 'xyz43210'}, 'application/json')
+    assert res.status_code == status.HTTP_200_OK
+    assert client.login(username='baz', password='xyz43210')
+    assert not client.login(username='baz', password='qux')
+
     # Staff update self.
     client.login(username='x', password='y')
     res = client.patch(staff_url, {'first_name': 'abc'}, 'application/json')
     assert res.status_code == status.HTTP_200_OK
     assert res.data['first_name'] == 'abc'
+
+    # Staff update self with invalid password.
+    client.login(username='x', password='y')
+    res = client.patch(staff_url, {'password': 'x'}, 'application/json')
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'password_too_short' in [err.code for err in res.data['password']]
+    assert client.login(username='x', password='y')
+    assert not client.login(username='x', password='x')
+
+    # Staff update self with valid password.
+    client.login(username='x', password='y')
+    res = client.patch(staff_url, {'password': 'xyz43210'}, 'application/json')
+    assert res.status_code == status.HTTP_200_OK
+    assert client.login(username='x', password='xyz43210')
+    assert not client.login(username='x', password='y')

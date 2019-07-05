@@ -35,3 +35,20 @@ class Question(models.Model):
         related_name='questions',
         on_delete=models.CASCADE,
     )
+
+
+class Answer(models.Model):
+    message = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    unread = models.BooleanField(default=True)
+    question = models.ForeignKey(
+        Question,
+        related_name='answers',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='answers',
+        on_delete=models.SET(get_deleted_user),
+    )

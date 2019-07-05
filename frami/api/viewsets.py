@@ -8,13 +8,14 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Prescription, Question
+from .models import Answer, Prescription, Question
 from .permissions import IsAdminOrSelf
 from .serializers import (
+    AnswerSerializer,
     PrescriptionSerializer,
     QuestionSerializer,
     UserSerializer,
@@ -51,6 +52,25 @@ class PrescriptionViewSet(
 
     def create(self, request, *args, **kwargs):
         data = {**request.data, 'prescriber': request.user.username}
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+
+class AnswerViewSet(CreateModelMixin, GenericViewSet):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    permission_classes = (IsAdminUser, )
+
+    def create(self, request, *args, **kwargs):
+        data = {**request.data, 'user': request.user.username}
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 

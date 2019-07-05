@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
-from .models import Prescription, Question
+from .models import Answer, Prescription, Question
 
 
 class PrescriptionSerializer(ModelSerializer):
@@ -17,7 +17,19 @@ class PrescriptionSerializer(ModelSerializer):
         fields = '__all__'
 
 
+class AnswerSerializer(ModelSerializer):
+    user = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.filter(is_staff=True),
+    )
+
+    class Meta:
+        model = Answer
+        fields = '__all__'
+
+
 class QuestionSerializer(ModelSerializer):
+    answers = AnswerSerializer(many=True, read_only=True)
     user = SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all(),

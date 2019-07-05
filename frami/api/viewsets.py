@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
@@ -7,12 +8,17 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Prescription
+from .models import Prescription, Question
 from .permissions import IsAdminOrSelf
-from .serializers import PrescriptionSerializer, UserSerializer
+from .serializers import (
+    PrescriptionSerializer,
+    QuestionSerializer,
+    UserSerializer,
+)
 
 
 class Permission(IsAdminOrSelf):
@@ -55,3 +61,52 @@ class PrescriptionViewSet(
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
+
+
+class QuestionViewSet(CreateModelMixin, GenericViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def create(self, request, *_args, **_kwargs):
+        """
+        Create an object.
+        """
+        data = {**request.data, 'user': request.user.username}
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+    def list(self, request, *_args, **_kwargs):
+        """
+        List objects.
+
+        Staff retrieves a complete list.  Regular users retrieve objects
+        that they own.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        if not request.user.is_staff:
+            queryset = queryset.filter(user=request.user)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *_args, **_kwargs):
+        """
+        Retrieve an object.
+
+        Staff may retrieve any object.  Regular users are limited to
+        objects that they own.
+        """
+        instance = self.get_object()
+        if request.user.is_staff or request.user == instance.user:
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        raise PermissionDenied()

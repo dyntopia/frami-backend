@@ -23,3 +23,15 @@ class Prescription(models.Model):
         related_name='prescribed',
         on_delete=models.SET(get_deleted_user),
     )
+
+
+class Question(models.Model):
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(
+        User,
+        related_name='questions',
+        on_delete=models.CASCADE,
+    )

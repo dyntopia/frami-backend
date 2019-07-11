@@ -6,7 +6,8 @@ from .permissions import ModelAndObjectPermission
 
 
 class BaseViewSet(GenericViewSet):
-    owner_field = 'user'
+    creator_field = 'creator'
+    filter_field = 'creator'
     admin_groups = ['admin']
     permission_classes = (ModelAndObjectPermission, )
 
@@ -21,12 +22,12 @@ class BaseViewSet(GenericViewSet):
         Retrieve a queryset.
 
         Users in `admin_groups` retrieves a complete queryset.  Other
-        users are limited to objects that they own.
+        users are limited to objects that matches `filter_field`.
         """
         queryset = super().get_queryset()
         if self.is_admin(self.request.user):
             return queryset
-        return queryset.filter(**{self.owner_field: self.request.user.pk})
+        return queryset.filter(**{self.filter_field: self.request.user.pk})
 
     def get_object(self):
         """

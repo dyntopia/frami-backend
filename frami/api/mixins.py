@@ -8,12 +8,12 @@ from rest_framework.mixins import UpdateModelMixin as _UpdateModelMixin
 class CreateModelMixin(_CreateModelMixin):
     def create(self, request, *args, **kwargs):
         """
-        Create an object with the authenticated user as owner.
+        Create an object with the authenticated user as creator.
         """
         serializer = self.get_serializer()
-        owner_field = getattr(self, 'owner_field', None)
-        if owner_field and not serializer.fields[owner_field].read_only:
-            request.data[owner_field] = request.user
+        creator = serializer.fields.get(getattr(self, 'creator_field', None))
+        if creator and not creator.read_only:
+            request.data[creator.field_name] = request.user
         return super().create(request, *args, **kwargs)
 
 

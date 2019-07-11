@@ -27,7 +27,7 @@ class UserViewSet(
 ):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    owner_field = 'id'
+    filter_field = 'id'
 
 
 class PrescriptionViewSet(
@@ -39,12 +39,14 @@ class PrescriptionViewSet(
 ):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
-    owner_field = 'prescriber'
+    creator_field = 'prescriber'
+    filter_field = 'user'
 
 
 class AnswerViewSet(CreateModelMixin, BaseViewSet):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
+    creator_field = filter_field = 'user'
 
 
 class QuestionViewSet(
@@ -55,3 +57,4 @@ class QuestionViewSet(
 ):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    creator_field = filter_field = 'user'

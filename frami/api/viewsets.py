@@ -8,11 +8,12 @@ from .mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from .models import Answer, Prescription, Question
+from .models import Answer, Prescription, Question, Result
 from .serializers import (
     AnswerSerializer,
     PrescriptionSerializer,
     QuestionSerializer,
+    ResultSerializer,
     UserSerializer,
 )
 
@@ -58,3 +59,16 @@ class QuestionViewSet(
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
     creator_field = filter_field = 'user'
+
+
+class ResultViewSet(
+        CreateModelMixin,
+        DestroyModelMixin,
+        ListModelMixin,
+        RetrieveModelMixin,
+        UpdateModelMixin,
+        BaseViewSet,
+):
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
+    filter_field = 'patient'

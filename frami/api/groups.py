@@ -15,6 +15,12 @@ groups = {
         # Question
         'view_question',
 
+        # Result
+        'add_result',
+        'change_result',
+        'delete_result',
+        'view_result',
+
         # User
         'add_user',
         'change_user',
@@ -27,6 +33,9 @@ groups = {
         # Question
         'add_question',
         'view_question',
+
+        # Result
+        'view_result',
 
         # User
         'view_user',

@@ -42,6 +42,9 @@ disable=
     too-many-arguments,
     use-symbolic-message-instead,
 
+[SIMILARITIES]
+min-similarity-lines=5
+
 [VARIABLES]
 init-import=yes
 

@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
-from .models import Answer, Prescription, Question
+from .models import Answer, Prescription, Question, Result
 
 
 class PrescriptionSerializer(ModelSerializer):
@@ -37,6 +37,17 @@ class QuestionSerializer(ModelSerializer):
 
     class Meta:
         model = Question
+        fields = '__all__'
+
+
+class ResultSerializer(ModelSerializer):
+    creator = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.filter(),
+    )
+
+    class Meta:
+        model = Result
         fields = '__all__'
 
 

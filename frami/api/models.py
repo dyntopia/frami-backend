@@ -52,3 +52,21 @@ class Answer(models.Model):
         related_name='answers',
         on_delete=models.SET(get_deleted_user),
     )
+
+
+class Result(models.Model):
+    kind = models.CharField(max_length=255)
+    result = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    unread = models.BooleanField(default=True)
+    patient = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+    creator = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.SET(get_deleted_user),
+    )

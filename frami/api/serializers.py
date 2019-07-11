@@ -1,5 +1,5 @@
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
@@ -41,6 +41,11 @@ class QuestionSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    groups = SlugRelatedField(
+        slug_field='name',
+        many=True,
+        queryset=Group.objects.all(),
+    )
     prescriptions = PrescriptionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -52,6 +57,7 @@ class UserSerializer(ModelSerializer):
             'first_name',
             'last_name',
             'is_staff',
+            'groups',
             'prescriptions',
             'password',
         )

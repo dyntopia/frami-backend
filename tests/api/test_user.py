@@ -17,28 +17,65 @@ def test_create(client, admin_user, regular_user):
     assert client.login(username=regular_user.username, password='password')
     res = client.post(url, {'username': 'abc', 'password': 'pwpwpw1234'})
     assert res.status_code == status.HTTP_403_FORBIDDEN
+    assert not client.login(username='abc', password='pwpwpw1234')
 
-    # New regular user.
+    # Invalid group.
     assert client.login(username=admin_user.username, password='password')
-    res = client.post(url, {'username': 'abc', 'password': 'pwpwpw1234'})
+    res = client.post(
+        url, {
+            'username': 'abc',
+            'password': 'pwpwpw1234',
+            'groups': ['abcdefghijkl'],
+        }
+    )
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'does_not_exist' in [err.code for err in res.data['groups']]
+    assert not client.login(username='abc', password='pwpwpw1234')
+
+    # New patient.
+    assert client.login(username=admin_user.username, password='password')
+    res = client.post(
+        url, {
+            'username': 'abc',
+            'password': 'pwpwpw1234',
+            'groups': ['patient'],
+        }
+    )
     assert not res.data['is_staff']
     assert res.data['username'] == 'abc'
+    assert res.data['groups'] == ['patient']
     assert res.status_code == status.HTTP_201_CREATED
     assert client.login(username='abc', password='pwpwpw1234')
 
-    # New staff.
+    # New admin.
     assert client.login(username=admin_user.username, password='password')
     res = client.post(
         url, {
             'username': 'xyz',
             'password': 'pwpwpw1234',
-            'is_staff': True,
+            'groups': ['admin'],
         }
     )
-    assert res.data['is_staff']
+    assert not res.data['is_staff']
     assert res.data['username'] == 'xyz'
+    assert res.data['groups'] == ['admin']
     assert res.status_code == status.HTTP_201_CREATED
     assert client.login(username='xyz', password='pwpwpw1234')
+
+    # New admin and patient.
+    assert client.login(username=admin_user.username, password='password')
+    res = client.post(
+        url, {
+            'username': 'xyz321',
+            'password': 'pwpwpw1234',
+            'groups': ['admin', 'patient'],
+        }
+    )
+    assert not res.data['is_staff']
+    assert res.data['username'] == 'xyz321'
+    assert sorted(res.data['groups']) == ['admin', 'patient']
+    assert res.status_code == status.HTTP_201_CREATED
+    assert client.login(username='xyz321', password='pwpwpw1234')
 
     # Duplicate.
     assert client.login(username=admin_user.username, password='password')

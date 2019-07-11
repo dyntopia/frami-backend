@@ -43,4 +43,12 @@ class RetrieveModelMixin(_RetrieveModelMixin):
 
 
 class UpdateModelMixin(_UpdateModelMixin):
-    pass
+    def update(self, request, *args, **kwargs):
+        """
+        Update an object with the authenticated user as creator.
+        """
+        serializer = self.get_serializer()
+        creator = serializer.fields.get(getattr(self, 'creator_field', None))
+        if creator and not creator.read_only:
+            request.data[creator.field_name] = request.user
+        return super().update(request, *args, **kwargs)

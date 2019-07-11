@@ -6,6 +6,7 @@ from frami.api.models import Answer, Question
 
 url = '/api/question/'
 url_id = '/api/question/{}/'
+url_user = '/api/question/?user={user}'
 
 
 @fixture
@@ -63,7 +64,7 @@ def test_create_with_answer(api, admin_user, regular_user, questions):
     assert not res.data['answers']
 
 
-def test_list(api, admin_user, regular_user, questions):
+def test_list(api, admin_user, regular_user, extra_users, questions):
     # Unauthenticated.
     res = api.get(url)
     assert res.status_code == status.HTTP_403_FORBIDDEN, res.data
@@ -78,11 +79,23 @@ def test_list(api, admin_user, regular_user, questions):
         assert res.data[i]['message'] == q.message
         assert res.data[i]['user'] == 'regular'
 
+    # Regular user get nothing when filtering on others questions.
+    assert api.login(username=regular_user.username, password='password')
+    res = api.get(url_user.format(user=extra_users[0].pk))
+    assert res.status_code == status.HTTP_200_OK, res.data
+    assert not res.data
+
     # Admin can list all questions.
     assert api.login(username=admin_user.username, password='password')
     res = api.get(url)
     assert res.status_code == status.HTTP_200_OK, res.data
     assert len(res.data) == sum([len(q) for q in questions.values()])
+
+    # Admin can filter questions.
+    assert api.login(username=admin_user.username, password='password')
+    res = api.get(url_user.format(user=extra_users[0].pk))
+    assert res.status_code == status.HTTP_200_OK, res.data
+    assert len(res.data) == len(questions[extra_users[0]])
 
 
 def test_retrieve(api, admin_user, regular_user, extra_users, questions):

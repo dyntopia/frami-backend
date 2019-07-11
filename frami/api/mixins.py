@@ -3,6 +3,7 @@ from rest_framework.mixins import DestroyModelMixin as _DestroyModelMixin
 from rest_framework.mixins import ListModelMixin as _ListModelMixin
 from rest_framework.mixins import RetrieveModelMixin as _RetrieveModelMixin
 from rest_framework.mixins import UpdateModelMixin as _UpdateModelMixin
+from rest_framework.response import Response
 
 
 class CreateModelMixin(_CreateModelMixin):
@@ -22,7 +23,19 @@ class DestroyModelMixin(_DestroyModelMixin):
 
 
 class ListModelMixin(_ListModelMixin):
-    pass
+    def list(self, request, *args, **kwargs):
+        """
+        List a queryset and optionally filter on `filter_field`.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        filter_name = getattr(self, 'filter_field', None)
+        filter_value = request.query_params.get(filter_name)
+        if filter_value:
+            queryset = queryset.filter(**{filter_name: filter_value})
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class RetrieveModelMixin(_RetrieveModelMixin):

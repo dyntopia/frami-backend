@@ -21,12 +21,12 @@ def test_create(api, admin_user, regular_user):
     }
 
     # regular
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     res = api.post(url, data)
     assert res.status_code == status.HTTP_201_CREATED
 
     # admin
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     res = api.post(url, data)
     assert res.status_code == status.HTTP_201_CREATED
     assert res.data['medication'] == 'foo'
@@ -45,11 +45,11 @@ def test_destroy(api, admin_user, regular_user):
     url = '/api/prescription/{}/'.format(prescription.pk)
 
     # regular
-    api.login(username='regular', password='password')
+    assert api.login(username=regular_user.username, password='password')
     assert api.delete(url).status_code == status.HTTP_403_FORBIDDEN
 
     # admin
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     assert api.delete(url).status_code == status.HTTP_204_NO_CONTENT
     assert api.get(url).status_code == status.HTTP_404_NOT_FOUND
 
@@ -64,11 +64,11 @@ def test_retrieve(api, admin_user, regular_user):
     url = '/api/prescription/{}/'.format(prescription.pk)
 
     # regular
-    api.login(username='regular', password='password')
+    assert api.login(username=regular_user.username, password='password')
     assert api.get(url).status_code == status.HTTP_403_FORBIDDEN
 
     # admin
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     res = api.get(url)
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'foo'
@@ -96,15 +96,15 @@ def test_update(api, admin_user, regular_user):
     url = '/api/prescription/{}/'.format(prescription.pk)
 
     # regular, partial
-    api.login(username='regular', password='password')
+    assert api.login(username=regular_user.username, password='password')
     assert api.patch(url, partial).status_code == status.HTTP_403_FORBIDDEN
 
     # regular, full
-    api.login(username='regular', password='password')
+    assert api.login(username=regular_user.username, password='password')
     assert api.put(url, full).status_code == status.HTTP_403_FORBIDDEN
 
     # admin, partial
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     res = api.patch(url, partial)
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'baz'
@@ -113,7 +113,7 @@ def test_update(api, admin_user, regular_user):
     assert res.data['prescriber'] == admin_user.username
 
     # admin, full
-    api.login(username='admin', password='password')
+    assert api.login(username=admin_user.username, password='password')
     res = api.put(url, full)
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'qux'

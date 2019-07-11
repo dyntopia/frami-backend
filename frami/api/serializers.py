@@ -9,7 +9,7 @@ from .models import Answer, Prescription, Question
 class PrescriptionSerializer(ModelSerializer):
     prescriber = SlugRelatedField(
         slug_field='username',
-        queryset=User.objects.filter(is_staff=True),
+        queryset=User.objects.filter(),
     )
 
     class Meta:
@@ -20,7 +20,7 @@ class PrescriptionSerializer(ModelSerializer):
 class AnswerSerializer(ModelSerializer):
     user = SlugRelatedField(
         slug_field='username',
-        queryset=User.objects.filter(is_staff=True),
+        queryset=User.objects.filter(),
     )
 
     class Meta:

@@ -10,6 +10,7 @@ def get_deleted_user():
 class Prescription(models.Model):
     medication = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
+    refill = models.PositiveIntegerField(default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     note = models.TextField(blank=True)

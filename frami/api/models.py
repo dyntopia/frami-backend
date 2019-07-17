@@ -13,12 +13,12 @@ class Prescription(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     note = models.TextField(blank=True)
-    user = models.ForeignKey(
+    patient = models.ForeignKey(
         User,
         related_name='prescriptions',
         on_delete=models.CASCADE,
     )
-    prescriber = models.ForeignKey(
+    creator = models.ForeignKey(
         User,
         related_name='prescribed',
         on_delete=models.SET(get_deleted_user),
@@ -30,7 +30,7 @@ class Question(models.Model):
     message = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(
+    creator = models.ForeignKey(
         User,
         related_name='questions',
         on_delete=models.CASCADE,
@@ -47,7 +47,7 @@ class Answer(models.Model):
         related_name='answers',
         on_delete=models.CASCADE,
     )
-    user = models.ForeignKey(
+    creator = models.ForeignKey(
         User,
         related_name='answers',
         on_delete=models.SET(get_deleted_user),

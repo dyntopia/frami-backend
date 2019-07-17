@@ -6,7 +6,7 @@ from frami.api.models import Answer, Question
 
 url = '/api/question/'
 url_id = '/api/question/{}/'
-url_user = '/api/question/?user={user}'
+url_creator = '/api/question/?creator={creator}'
 
 
 @fixture
@@ -15,7 +15,7 @@ def questions(regular_user, extra_users):
     return {
         user: [
             Question.objects.create(
-                user=user,
+                creator=user,
                 subject='subject {} for {}'.format(i, user.username),
                 message='message {} for {}'.format(i, user.username),
             ) for i in range(3)
@@ -40,7 +40,7 @@ def test_create(api, regular_user):
     assert res.status_code == status.HTTP_201_CREATED, res.data
     assert res.data['subject'] == data['subject']
     assert res.data['message'] == data['message']
-    assert res.data['user'] == regular_user.username
+    assert res.data['creator'] == regular_user.username
 
 
 def test_create_with_answer(api, admin_user, regular_user, questions):
@@ -51,7 +51,7 @@ def test_create_with_answer(api, admin_user, regular_user, questions):
         'answers': [{
             'message': 'foo',
             'question': question.pk,
-            'user': admin_user.pk,
+            'creator': admin_user.pk,
         }],
     }
 
@@ -60,7 +60,7 @@ def test_create_with_answer(api, admin_user, regular_user, questions):
     assert res.status_code == status.HTTP_201_CREATED, res.data
     assert res.data['subject'] == data['subject']
     assert res.data['message'] == data['message']
-    assert res.data['user'] == regular_user.username
+    assert res.data['creator'] == regular_user.username
     assert not res.data['answers']
 
 
@@ -77,11 +77,11 @@ def test_list(api, admin_user, regular_user, extra_users, questions):
     for i, q in enumerate(questions[regular_user]):
         assert res.data[i]['subject'] == q.subject
         assert res.data[i]['message'] == q.message
-        assert res.data[i]['user'] == 'regular'
+        assert res.data[i]['creator'] == 'regular'
 
     # Regular user get nothing when filtering on others questions.
     assert api.login(username=regular_user.username, password='password')
-    res = api.get(url_user.format(user=extra_users[0].pk))
+    res = api.get(url_creator.format(creator=extra_users[0].pk))
     assert res.status_code == status.HTTP_200_OK, res.data
     assert not res.data
 
@@ -93,7 +93,7 @@ def test_list(api, admin_user, regular_user, extra_users, questions):
 
     # Admin can filter questions.
     assert api.login(username=admin_user.username, password='password')
-    res = api.get(url_user.format(user=extra_users[0].pk))
+    res = api.get(url_creator.format(creator=extra_users[0].pk))
     assert res.status_code == status.HTTP_200_OK, res.data
     assert len(res.data) == len(questions[extra_users[0]])
 
@@ -110,7 +110,7 @@ def test_retrieve(api, admin_user, regular_user, extra_users, questions):
         assert res.status_code == status.HTTP_200_OK, res.data
         assert res.data['subject'] == q.subject
         assert res.data['message'] == q.message
-        assert res.data['user'] == 'regular'
+        assert res.data['creator'] == 'regular'
 
     # Users can not retrieve other users questions.
     for user in extra_users:
@@ -126,14 +126,14 @@ def test_retrieve(api, admin_user, regular_user, extra_users, questions):
             assert res.status_code == status.HTTP_200_OK, res.data
             assert res.data['subject'] == q.subject
             assert res.data['message'] == q.message
-            assert res.data['user'] == user.username
+            assert res.data['creator'] == user.username
 
 
 def test_retrieve_with_answer(api, admin_user, regular_user, questions):
     question, *_ = questions[regular_user]
     answers = [
         Answer.objects.create(
-            user=admin_user,
+            creator=admin_user,
             message='answer {}'.format(i),
             question=question,
         ) for i in range(2)
@@ -147,4 +147,4 @@ def test_retrieve_with_answer(api, admin_user, regular_user, questions):
     for i, answer in enumerate(answers):
         assert res.data['answers'][i]['message'] == answer.message
         assert res.data['answers'][i]['unread']
-        assert res.data['answers'][i]['user'] == admin_user.username
+        assert res.data['answers'][i]['creator'] == admin_user.username

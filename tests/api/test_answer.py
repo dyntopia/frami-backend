@@ -7,7 +7,7 @@ url = '/api/answer/'
 
 def test_create(api, admin_user, regular_user):
     question = Question.objects.create(
-        user=regular_user,
+        creator=regular_user,
         subject='foo',
         message='bar',
     )
@@ -27,7 +27,7 @@ def test_create(api, admin_user, regular_user):
     assert res.status_code == status.HTTP_201_CREATED, res.data
     assert res.data['message'] == 'baz'
     assert res.data['question'] == question.pk
-    assert res.data['user'] == admin_user.username
+    assert res.data['creator'] == admin_user.username
 
     # Admin, missing question.
     assert api.login(username=admin_user.username, password='password')

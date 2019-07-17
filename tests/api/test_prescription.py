@@ -17,7 +17,7 @@ def test_create(api, admin_user, regular_user):
     data = {
         'medication': 'foo',
         'quantity': 'bar',
-        'user': regular_user.pk,
+        'patient': regular_user.pk,
     }
 
     # regular
@@ -31,16 +31,16 @@ def test_create(api, admin_user, regular_user):
     assert res.status_code == status.HTTP_201_CREATED
     assert res.data['medication'] == 'foo'
     assert res.data['quantity'] == 'bar'
-    assert res.data['user'] == regular_user.pk
-    assert res.data['prescriber'] == admin_user.username
+    assert res.data['patient'] == regular_user.pk
+    assert res.data['creator'] == admin_user.username
 
 
 def test_destroy(api, admin_user, regular_user):
     prescription = Prescription.objects.create(
         medication='foo',
         quantity='bar',
-        user=regular_user,
-        prescriber=admin_user,
+        patient=regular_user,
+        creator=admin_user,
     )
     url = '/api/prescription/{}/'.format(prescription.pk)
 
@@ -58,8 +58,8 @@ def test_retrieve(api, admin_user, regular_user):
     prescription = Prescription.objects.create(
         medication='foo',
         quantity='bar',
-        user=regular_user,
-        prescriber=admin_user,
+        patient=regular_user,
+        creator=admin_user,
     )
     url = '/api/prescription/{}/'.format(prescription.pk)
 
@@ -73,16 +73,16 @@ def test_retrieve(api, admin_user, regular_user):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'foo'
     assert res.data['quantity'] == 'bar'
-    assert res.data['user'] == regular_user.pk
-    assert res.data['prescriber'] == admin_user.username
+    assert res.data['patient'] == regular_user.pk
+    assert res.data['creator'] == admin_user.username
 
 
 def test_update(api, admin_user, regular_user):
     prescription = Prescription.objects.create(
         medication='foo',
         quantity='bar',
-        user=regular_user,
-        prescriber=admin_user,
+        patient=regular_user,
+        creator=admin_user,
     )
     partial = {
         'medication': 'baz',
@@ -90,8 +90,8 @@ def test_update(api, admin_user, regular_user):
     full = {
         'medication': 'qux',
         'quantity': 'abc',
-        'user': regular_user.pk,
-        'prescriber': admin_user.username,
+        'patient': regular_user.pk,
+        'creator': admin_user.username,
     }
     url = '/api/prescription/{}/'.format(prescription.pk)
 
@@ -109,8 +109,8 @@ def test_update(api, admin_user, regular_user):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'baz'
     assert res.data['quantity'] == 'bar'
-    assert res.data['user'] == regular_user.pk
-    assert res.data['prescriber'] == admin_user.username
+    assert res.data['patient'] == regular_user.pk
+    assert res.data['creator'] == admin_user.username
 
     # admin, full
     assert api.login(username=admin_user.username, password='password')
@@ -118,16 +118,16 @@ def test_update(api, admin_user, regular_user):
     assert res.status_code == status.HTTP_200_OK
     assert res.data['medication'] == 'qux'
     assert res.data['quantity'] == 'abc'
-    assert res.data['user'] == regular_user.pk
-    assert res.data['prescriber'] == admin_user.username
+    assert res.data['patient'] == regular_user.pk
+    assert res.data['creator'] == admin_user.username
 
 
 def test_on_user_delete(admin_user, regular_user):
     Prescription.objects.create(
         medication='foo',
         quantity='bar',
-        user=regular_user,
-        prescriber=admin_user,
+        patient=regular_user,
+        creator=admin_user,
     )
 
     assert Prescription.objects.all()
@@ -135,14 +135,14 @@ def test_on_user_delete(admin_user, regular_user):
     assert not Prescription.objects.all()
 
 
-def test_on_prescriber_delete(admin_user, regular_user):
+def test_on_creator_delete(admin_user, regular_user):
     Prescription.objects.create(
         medication='foo',
         quantity='bar',
-        user=regular_user,
-        prescriber=admin_user,
+        patient=regular_user,
+        creator=admin_user,
     )
 
     assert len(Prescription.objects.all()) == 1
     admin_user.delete()
-    assert Prescription.objects.first().prescriber.username == 'deleted'
+    assert Prescription.objects.first().creator.username == 'deleted'

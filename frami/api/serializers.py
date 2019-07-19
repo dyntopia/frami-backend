@@ -1,13 +1,18 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.serializers import ModelSerializer, SlugRelatedField
+from rest_framework.serializers import (
+    ModelSerializer,
+    PrimaryKeyRelatedField,
+    SlugRelatedField,
+)
 
 from .models import (
     Answer,
     Appointment,
     AppointmentRequest,
     Prescription,
+    PrescriptionRequest,
     Question,
     Result,
 )
@@ -53,9 +58,21 @@ class PrescriptionSerializer(ModelSerializer):
         slug_field='username',
         queryset=User.objects.filter(),
     )
+    refill_request = PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Prescription
+        fields = '__all__'
+
+
+class PrescriptionRequestSerializer(ModelSerializer):
+    creator = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.filter(),
+    )
+
+    class Meta:
+        model = PrescriptionRequest
         fields = '__all__'
 
 

@@ -13,6 +13,7 @@ from .models import (
     Appointment,
     AppointmentRequest,
     Prescription,
+    PrescriptionRequest,
     Question,
     Result,
 )
@@ -20,6 +21,7 @@ from .serializers import (
     AnswerSerializer,
     AppointmentRequestSerializer,
     AppointmentSerializer,
+    PrescriptionRequestSerializer,
     PrescriptionSerializer,
     QuestionSerializer,
     ResultSerializer,
@@ -74,6 +76,15 @@ class PrescriptionViewSet(
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
     filter_field = 'patient'
+
+
+class PrescriptionRequestViewSet(
+        CreateModelMixin,
+        DestroyModelMixin,
+        BaseViewSet,
+):
+    queryset = PrescriptionRequest.objects.all()
+    serializer_class = PrescriptionRequestSerializer
 
 
 class AnswerViewSet(CreateModelMixin, BaseViewSet):

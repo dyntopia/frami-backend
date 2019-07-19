@@ -22,6 +22,9 @@ groups = {
         'delete_prescription',
         'view_prescription',
 
+        # PrescriptionRequest
+        'delete_prescriptionrequest',
+
         # Question
         'view_question',
 
@@ -47,6 +50,9 @@ groups = {
         'add_appointmentrequest',
         'delete_appointmentrequest',
         'view_appointmentrequest',
+
+        # PrescriptionRequest
+        'add_prescriptionrequest',
 
         # Question
         'add_question',

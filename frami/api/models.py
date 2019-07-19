@@ -70,6 +70,21 @@ class Prescription(models.Model):
     )
 
 
+class PrescriptionRequest(models.Model):
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    prescription = models.OneToOneField(
+        Prescription,
+        related_name='refill_request',
+        on_delete=models.CASCADE,
+    )
+    creator = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+
+
 class Question(models.Model):
     subject = models.CharField(max_length=255)
     message = models.TextField()

@@ -8,14 +8,47 @@ from .mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from .models import Answer, Prescription, Question, Result
+from .models import (
+    Answer,
+    Appointment,
+    AppointmentRequest,
+    Prescription,
+    Question,
+    Result,
+)
 from .serializers import (
     AnswerSerializer,
+    AppointmentRequestSerializer,
+    AppointmentSerializer,
     PrescriptionSerializer,
     QuestionSerializer,
     ResultSerializer,
     UserSerializer,
 )
+
+
+class AppointmentViewSet(
+        CreateModelMixin,
+        DestroyModelMixin,
+        ListModelMixin,
+        RetrieveModelMixin,
+        UpdateModelMixin,
+        BaseViewSet,
+):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    filter_field = 'patient'
+
+
+class AppointmentRequestViewSet(
+        CreateModelMixin,
+        DestroyModelMixin,
+        ListModelMixin,
+        RetrieveModelMixin,
+        BaseViewSet,
+):
+    queryset = AppointmentRequest.objects.all()
+    serializer_class = AppointmentRequestSerializer
 
 
 class UserViewSet(

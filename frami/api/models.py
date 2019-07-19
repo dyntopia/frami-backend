@@ -7,6 +7,50 @@ def get_deleted_user():
     return get_user_model().objects.get_or_create(username='deleted')[0]
 
 
+class Appointment(models.Model):
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    note = models.TextField(blank=True)
+    patient = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+    staff = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.SET(get_deleted_user),
+    )
+    creator = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.SET(get_deleted_user),
+    )
+
+
+class AppointmentRequest(models.Model):
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    staff = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.SET(get_deleted_user),
+        null=True,
+        blank=True,
+    )
+    creator = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+
+
 class Prescription(models.Model):
     medication = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)

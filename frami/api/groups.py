@@ -6,6 +6,16 @@ groups = {
         # Answer
         'add_answer',
 
+        # Appointment
+        'add_appointment',
+        'delete_appointment',
+        'change_appointment',
+        'view_appointment',
+
+        # AppointmentRequest
+        'delete_appointmentrequest',
+        'view_appointmentrequest',
+
         # Prescription
         'add_prescription',
         'change_prescription',
@@ -30,6 +40,14 @@ groups = {
         'view_user',
     ],
     'patient': [
+        # Appointment
+        'view_appointment',
+
+        # AppointmentRequest
+        'add_appointmentrequest',
+        'delete_appointmentrequest',
+        'view_appointmentrequest',
+
         # Question
         'add_question',
         'view_question',

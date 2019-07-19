@@ -3,7 +3,49 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
-from .models import Answer, Prescription, Question, Result
+from .models import (
+    Answer,
+    Appointment,
+    AppointmentRequest,
+    Prescription,
+    Question,
+    Result,
+)
+
+
+class AppointmentSerializer(ModelSerializer):
+    creator = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all(),
+    )
+    staff = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.filter(groups__name='admin'),
+    )
+    patient = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all(),
+    )
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+
+
+class AppointmentRequestSerializer(ModelSerializer):
+    creator = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all(),
+    )
+    staff = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.filter(groups__name='admin'),
+        required=False,
+    )
+
+    class Meta:
+        model = AppointmentRequest
+        fields = '__all__'
 
 
 class PrescriptionSerializer(ModelSerializer):

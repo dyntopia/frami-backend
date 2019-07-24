@@ -1,3 +1,5 @@
+from operator import attrgetter
+
 from django.http import Http404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.viewsets import GenericViewSet
@@ -8,6 +10,7 @@ from .permissions import ModelAndObjectPermission
 class BaseViewSet(GenericViewSet):
     creator_field = 'creator'
     filter_field = 'creator'
+    filter_value = attrgetter('user.pk')
     admin_groups = ['admin']
     permission_classes = (ModelAndObjectPermission, )
 
@@ -27,7 +30,10 @@ class BaseViewSet(GenericViewSet):
         queryset = super().get_queryset()
         if self.is_admin(self.request.user):
             return queryset
-        return queryset.filter(**{self.filter_field: self.request.user.pk})
+
+        field = self.filter_field
+        value = self.filter_value(self.request)
+        return queryset.filter(**{field: value})
 
     def get_object(self):
         """

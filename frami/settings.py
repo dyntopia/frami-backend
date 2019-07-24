@@ -2,6 +2,7 @@ import json
 import pathlib
 import sys
 
+PROJECT = 'frami'
 LOCAL_DIR = pathlib.Path.home() / '.frami'
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -10,7 +11,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'frami.api',
+    'frami.api.apps.ApiConfig',
     'frami.spa',
 ]
 MIDDLEWARE = [

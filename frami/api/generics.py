@@ -10,7 +10,7 @@ from .permissions import ModelAndObjectPermission
 class BaseViewSet(GenericViewSet):
     creator_field = 'creator'
     filter_field = 'creator'
-    filter_value = attrgetter('user.pk')
+    filter_value = 'user.pk'
     admin_groups = ['admin']
     permission_classes = (ModelAndObjectPermission, )
 
@@ -32,7 +32,7 @@ class BaseViewSet(GenericViewSet):
             return queryset
 
         field = self.filter_field
-        value = self.filter_value(self.request)
+        value = attrgetter(self.filter_value)(self.request)
         return queryset.filter(**{field: value})
 
     def get_object(self):

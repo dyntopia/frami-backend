@@ -1,9 +1,7 @@
 # pylint: disable=W0621
 from django.utils import timezone
-from pytest import fixture, mark
+from pytest import fixture
 from rest_framework import status
-
-from frami.api.models import AppointmentRequest
 
 url = '/api/appointment-request/'
 url_pk = '/api/appointment-request/{pk}/'
@@ -11,21 +9,8 @@ url_creator = '/api/appointment-request/?creator={creator}'
 
 
 @fixture
-@mark.django_db
-def requests(admin_user, regular_user, extra_users):
-    return {
-        user: [
-            AppointmentRequest.objects.create(
-                staff=admin_user,
-                creator=user,
-                start_date=timezone.now(),
-                end_date=timezone.now(),
-                subject='subject {} for {}'.format(i, user.username),
-                message='message {} for {}'.format(i, user.username),
-            ) for i in range(3)
-        ]
-        for user in [regular_user] + extra_users
-    }
+def requests(appointment_requests):
+    return appointment_requests
 
 
 def test_create(api, admin_user, regular_user):

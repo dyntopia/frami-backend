@@ -12,19 +12,23 @@ from .models import (
     Answer,
     Appointment,
     AppointmentRequest,
+    GroupNotification,
     Prescription,
     PrescriptionRequest,
     Question,
     Result,
+    UserNotification,
 )
 from .serializers import (
     AnswerSerializer,
     AppointmentRequestSerializer,
     AppointmentSerializer,
+    GroupNotificationSerializer,
     PrescriptionRequestSerializer,
     PrescriptionSerializer,
     QuestionSerializer,
     ResultSerializer,
+    UserNotificationSerializer,
     UserSerializer,
 )
 
@@ -113,3 +117,26 @@ class ResultViewSet(
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
     filter_field = 'patient'
+
+
+class UserNotificationViewSet(
+        ListModelMixin,
+        UpdateModelMixin,
+        BaseViewSet,
+):
+    queryset = UserNotification.objects.all()
+    serializer_class = UserNotificationSerializer
+    filter_field = 'user'
+    admin_groups = []
+
+
+class GroupNotificationViewSet(
+        ListModelMixin,
+        UpdateModelMixin,
+        BaseViewSet,
+):
+    queryset = GroupNotification.objects.all()
+    serializer_class = GroupNotificationSerializer
+    filter_field = 'group__name__in'
+    filter_value = 'user.groups.all'
+    admin_groups = []

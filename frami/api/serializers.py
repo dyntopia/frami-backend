@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import (
     ModelSerializer,
     PrimaryKeyRelatedField,
+    RelatedField,
     SlugRelatedField,
 )
 
@@ -11,10 +12,12 @@ from .models import (
     Answer,
     Appointment,
     AppointmentRequest,
+    GroupNotification,
     Prescription,
     PrescriptionRequest,
     Question,
     Result,
+    UserNotification,
 )
 
 
@@ -141,3 +144,71 @@ class UserSerializer(ModelSerializer):
     def validate_password(value):
         validate_password(value)
         return make_password(value)
+
+
+class GenericFieldSerializer(RelatedField):  # pylint: disable=W0223
+    serializers = [
+        AppointmentSerializer,
+        AppointmentRequestSerializer,
+        PrescriptionSerializer,
+        PrescriptionRequestSerializer,
+        QuestionSerializer,
+        AnswerSerializer,
+        ResultSerializer,
+    ]
+
+    def to_representation(self, value):
+        for serializer in self.serializers:
+            if isinstance(value, serializer.Meta.model):
+                return serializer(value).data
+        raise Exception('Could not find model')
+
+
+class UserNotificationSerializer(ModelSerializer):
+    target = GenericFieldSerializer(read_only=True)
+    user = SlugRelatedField(slug_field='username', queryset=User.objects.all())
+
+    class Meta:
+        model = UserNotification
+        fields = (
+            'uuid',
+            'target',
+            'target_name',
+            'creation_date',
+            'user',
+            'event',
+            'read',
+        )
+        read_only_fields = (
+            'uuid',
+            'target',
+            'target_name',
+            'creation_date',
+            'user',
+            'event',
+        )
+
+
+class GroupNotificationSerializer(ModelSerializer):
+    target = GenericFieldSerializer(read_only=True)
+    group = SlugRelatedField(slug_field='name', queryset=Group.objects.all())
+
+    class Meta:
+        model = GroupNotification
+        fields = (
+            'uuid',
+            'target',
+            'target_name',
+            'creation_date',
+            'group',
+            'event',
+            'read',
+        )
+        read_only_fields = (
+            'uuid',
+            'target',
+            'target_name',
+            'creation_date',
+            'group',
+            'event',
+        )

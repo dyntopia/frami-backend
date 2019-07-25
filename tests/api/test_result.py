@@ -1,28 +1,8 @@
-# pylint: disable=W0621
-from pytest import fixture, mark
 from rest_framework import status
-
-from frami.api.models import Result
 
 url = '/api/result/'
 url_pk = '/api/result/{pk}/'
 url_patient = '/api/result/?patient={patient}'
-
-
-@fixture
-@mark.django_db
-def results(admin_user, regular_user, extra_users):
-    return {
-        user: [
-            Result.objects.create(
-                kind='kind {} for {}'.format(i, user.username),
-                result='result {} for {}'.format(i, user.username),
-                patient=user,
-                creator=admin_user,
-            ) for i in range(3)
-        ]
-        for user in [regular_user] + extra_users
-    }
 
 
 def test_create(api, admin_user, regular_user):

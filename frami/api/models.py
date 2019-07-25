@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
@@ -129,4 +131,39 @@ class Result(models.Model):
         User,
         related_name='+',
         on_delete=models.SET(get_deleted_user),
+    )
+
+
+class Notification(models.Model):
+    CHANGED = 'changed'
+    CREATED = 'created'
+    DELETED = 'deleted'
+
+    uuid = models.UUIDField(editable=False)
+    read = models.BooleanField(default=False)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    event = models.CharField(
+        max_length=255,
+        choices=[(x, x) for x in [CHANGED, CREATED, DELETED]],
+    )
+    target_name = models.CharField(max_length=255)
+    target_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    target_id = models.PositiveIntegerField()
+    target = GenericForeignKey('target_type', 'target_id')
+
+
+class UserNotification(Notification):
+    user = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+
+
+class GroupNotification(Notification):
+    group = models.ForeignKey(
+        Group,
+        related_name='+',
+        on_delete=models.CASCADE,
     )

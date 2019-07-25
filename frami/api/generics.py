@@ -1,5 +1,7 @@
+from collections import Callable
 from operator import attrgetter
 
+from django.db.models import QuerySet
 from django.http import Http404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.viewsets import GenericViewSet
@@ -33,6 +35,11 @@ class BaseViewSet(GenericViewSet):
 
         field = self.filter_field
         value = attrgetter(self.filter_value)(self.request)
+        if isinstance(value, Callable):
+            value = value()
+        if isinstance(value, QuerySet):
+            value = list(value)
+
         return queryset.filter(**{field: value})
 
     def get_object(self):

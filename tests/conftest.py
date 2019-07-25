@@ -1,9 +1,43 @@
 # pylint: disable=W0621
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from pytest import fixture, mark
 from rest_framework.test import APIClient
 
 from frami.api.groups import create_groups
+from frami.api.models import AppointmentRequest, Result
+
+
+@fixture
+def appointment_requests(admin_user, regular_user, extra_users):
+    return {
+        user: [
+            AppointmentRequest.objects.create(
+                staff=admin_user,
+                creator=user,
+                start_date=timezone.now(),
+                end_date=timezone.now(),
+                subject='subject {} for {}'.format(i, user.username),
+                message='message {} for {}'.format(i, user.username),
+            ) for i in range(3)
+        ]
+        for user in [regular_user] + extra_users
+    }
+
+
+@fixture
+def results(admin_user, regular_user, extra_users):
+    return {
+        user: [
+            Result.objects.create(
+                kind='kind {} for {}'.format(i, user.username),
+                result='result {} for {}'.format(i, user.username),
+                patient=user,
+                creator=admin_user,
+            ) for i in range(3)
+        ]
+        for user in [regular_user] + extra_users
+    }
 
 
 @fixture

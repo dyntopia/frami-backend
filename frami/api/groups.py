@@ -38,9 +38,15 @@ groups = {
         'add_user',
         'change_user',
         'delete_user',
-
-        # 'delete_user',
         'view_user',
+
+        # UserNotification
+        'change_usernotification',
+        'view_usernotification',
+
+        # GroupNotification
+        'change_groupnotification',
+        'view_groupnotification',
     ],
     'patient': [
         # Appointment
@@ -63,6 +69,13 @@ groups = {
 
         # User
         'view_user',
+
+        # UserNotification
+        'change_usernotification',
+        'view_usernotification',
+
+        # GroupNotification
+        'view_groupnotification',
     ],
 }
 

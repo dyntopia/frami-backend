@@ -50,6 +50,7 @@ groups = {
     ],
     'patient': [
         # Appointment
+        'delete_appointment',
         'view_appointment',
 
         # AppointmentRequest

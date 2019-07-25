@@ -52,20 +52,27 @@ def test_create(api, admin_user, regular_user):
     assert res.data['staff'] == admin_user.username
 
 
-def test_destroy(api, admin_user, regular_user, appointments):
-    target = url_pk.format(pk=appointments[regular_user][0].pk)
+def test_destroy(api, admin_user, regular_user, extra_users, appointments):
+    target_a = url_pk.format(pk=appointments[regular_user][0].pk)
+    target_b = url_pk.format(pk=appointments[regular_user][1].pk)
+    extra_target = url_pk.format(pk=appointments[extra_users[0]][0].pk)
 
     # Unauthenticated.
-    assert api.delete(target).status_code == status.HTTP_403_FORBIDDEN
+    assert api.delete(extra_target).status_code == status.HTTP_403_FORBIDDEN
 
     # Regular user.
     assert api.login(username=regular_user.username, password='password')
-    assert api.delete(target).status_code == status.HTTP_403_FORBIDDEN
+    assert api.delete(target_a).status_code == status.HTTP_204_NO_CONTENT
+    assert api.get(target_a).status_code == status.HTTP_403_FORBIDDEN
+
+    # Regular user, other users appointment.
+    assert api.login(username=regular_user.username, password='password')
+    assert api.delete(extra_target).status_code == status.HTTP_403_FORBIDDEN
 
     # Staff.
     assert api.login(username=admin_user.username, password='password')
-    assert api.delete(target).status_code == status.HTTP_204_NO_CONTENT
-    assert api.get(target).status_code == status.HTTP_404_NOT_FOUND
+    assert api.delete(target_b).status_code == status.HTTP_204_NO_CONTENT
+    assert api.get(target_b).status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_list(api, admin_user, regular_user, extra_users, appointments):

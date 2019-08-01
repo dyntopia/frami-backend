@@ -78,6 +78,13 @@ try:
         raise ValueError('DEBUG must be a bool')
     if not isinstance(SECRET_KEY, str) or not SECRET_KEY:
         raise ValueError('SECRET_KEY must be a >0-length string')
+
+    EMAIL_HOST = extra.get('EMAIL_HOST')
+    EMAIL_HOST_USER = extra.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = extra.get('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = extra.get('EMAIL_PORT')
+    EMAIL_USE_TLS = extra.get('EMAIL_USE_TLS')
+    DEFAULT_FROM_EMAIL = '{} <{}>'.format(PROJECT, EMAIL_HOST_USER)
 except (IOError, KeyError, ValueError) as e:
     sys.stderr.write('{}: {}\n'.format(config, e))
     sys.exit(1)

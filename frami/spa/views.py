@@ -1,11 +1,23 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
+from django.contrib.auth.views import (
+    PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
+)
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
 
 from ..api.serializers import UserSerializer
+
+# for pyflakes
+assert PasswordResetCompleteView
+assert PasswordResetConfirmView
+assert PasswordResetDoneView
+assert PasswordResetView
 
 
 class IndexView(TemplateView):
